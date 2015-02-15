@@ -11,11 +11,67 @@ define(function (require, exports, module) {
         DocumentManager = brackets.getModule("document/DocumentManager"),
         CSSUtils       = brackets.getModule("language/CSSUtils");
         
-    function filterSelectors(selectors) {
+    function filterSelectors(selectors, document) {
         var filteredSelectors = {},
             i;
 
+        /*
+        
+        FIRST .test SELECTOR
+        declListEndChar: 0
+        declListEndLine: 12
+        declListStartChar: 6
+        declListStartLine: 8
+        level: 0
+        parentSelectors: ""
+        ruleStartChar: 1
+        ruleStartLine: 8
+        selector: ".test"
+        selectorEndChar: 5
+        selectorEndLine: 8
+        selectorGroupStartChar: 0
+        selectorGroupStartLine: -1
+        selectorStartChar: 0
+        selectorStartLine: 8
+        
+        BODY INSIDE MEDIA Query
+        declListEndChar: 4
+        declListEndLine: 4
+        1declListStartChar: 9
+        declListStartLine: 39
+        level: 1
+        parentSelectors: ""
+        ruleStartChar: 5
+        ruleStartLine: 39
+        selector: "body"
+        selectorEndChar: 8
+        selectorEndLine: 39
+        selectorGroupStartChar: 4
+        selectorGroupStartLine: -1
+        selectorStartChar: 4
+        selectorStartLine: 39
+        
+        */
+        
+        function findMediaQuery(selector) {
+            var line,
+                i;
+            
+            for (i = selector.selectorStartLine; i > 0; i = i - 1) {
+                line = document.getLine(i);
+                if (line.charAt(0) === '@') {
+                    return line;
+                }
+            }
+            
+            return null;
+            
+        }
+        
         function filterSelector(index, selector) {
+            var range;
+            
+            // Selector already exists
             if (!filteredSelectors[selector.selector]) {
                 filteredSelectors[selector.selector] = {
                     'name': selector.selector,
@@ -23,8 +79,19 @@ define(function (require, exports, module) {
                     'ranges': []
                 };
             }
-            filteredSelectors[selector.selector]
-                .ranges.push({'lineStart': selector.declListStartLine, 'lineEnd': selector.declListEndLine});
+            
+            range = {
+                'lineStart': selector.declListStartLine,
+                'lineEnd': selector.declListEndLine
+            };
+            
+            // Has a parent, eg a media query?
+            if (selector.level > 0) {
+                range.mediaQuery = findMediaQuery(selector);
+            }
+            
+            
+            filteredSelectors[selector.selector].ranges.push(range);
         }
 
         for (i = 0; i < selectors.length; i = i + 1) {
@@ -50,31 +117,91 @@ define(function (require, exports, module) {
     }
 
     function combineSelectors(selectors, document) {
-        var text = "",
+        var documentText = "",
             i,
             j,
             k,
             start,
             end,
-            line;
+            line,
+            mediaQueries,
+            selectorName;
         
-        for (i = 0; i < selectors.length; i = i + 1) {
-            if (selectors[i]) {
-                text = text + selectors[i].name + " { \n";
-                for (j = 0; j < selectors[i].ranges.length; j = j + 1) {
-                    start = selectors[i].ranges[j].lineStart;
-                    end = selectors[i].ranges[j].lineEnd;
+        function combineLines(selector, ranges) {
+            var text = "",
+                j,
+                k,
+                line,
+                start,
+                end,
+                baseExists = false;
+            
+            // Check if base selector exists
+            for (j = 0; j < ranges.length; j = j + 1) {
+                if (!ranges[j].mediaQuery) {
+                    baseExists = true;
+                }
+            }
+            
+            
+            if (baseExists) {
+                // Start of selector
+                text = text + selector;
+
+                // Create the base first time
+                for (j = 0; j < ranges.length; j = j + 1) {
+                    if (!ranges[j].mediaQuery) {
+                        start = ranges[j].lineStart;
+                        end = ranges[j].lineEnd;
+                        for (k = start + 1; k <= end - 1; k = k + 1) {
+                            line = document.getLine(k);
+                            text = text + line + "\n";
+                        }
+                    }
+                }
+
+                // End Base
+                text = text + '}\n\n';
+            }
+            
+            // Create the Media queries second time
+            for (j = 0; j < ranges.length; j = j + 1) {
+                if (ranges[j].mediaQuery) {
+                    
+                    text = text + ranges[j].mediaQuery + '\n';
+                    text = text + '\t' + selector;
+                    
+                    start = ranges[j].lineStart;
+                    end = ranges[j].lineEnd;
                     for (k = start + 1; k <= end - 1; k = k + 1) {
                         line = document.getLine(k);
                         text = text + line + "\n";
                     }
+                    
+                    // Close selector
+                    text = text + '\t}\n';
+                    
+                    // Close media query
+                    text = text + '}\n\n';
                 }
-
-                text = text + "} \n\n";
+            }
+        
+            return text;
+        }
+        
+        
+        for (i = 0; i < selectors.length; i = i + 1) {
+            // Might have empty indexes
+            if (selectors[i]) {
+                
+                selectorName = selectors[i].name + " { \n";
+                
+                documentText = documentText + combineLines(selectorName, selectors[i].ranges);
+            
             }
         }
 
-        return text;
+        return documentText;
     }
     
     
@@ -89,10 +216,8 @@ define(function (require, exports, module) {
             var text = document.getText();
 
             var selectors = CSSUtils.extractAllSelectors(text);
-            var filtered = filterSelectors(selectors);
+            var filtered = filterSelectors(selectors, document);
             var sorted = sortSelectors(filtered);
-            
-            console.log(selectors);
             
             document.setText(combineSelectors(sorted, document));
         }

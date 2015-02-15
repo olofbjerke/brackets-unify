@@ -32,10 +32,12 @@ body {
     color: black;
 }
 
-.test .test2 { 
-    color: magenta;
-} 
+@media and (min-width: 10000px) {
+    .test .test2 { 
+        color: magenta;
+    } 
 
-body {
-    background: #f8f8f8;
+    body, .test2 {
+        background: #f8f8f8;
+    }
 }
