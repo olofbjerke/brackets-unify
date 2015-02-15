@@ -3,9 +3,13 @@
 }
 
 body {
-    font-family: sans-serif;
     background: magenta; /* Will be overruled by later rule */
+    font-family: sans-serif;
     margin: 1em;
+}
+
+#nononono {
+    color: magenta;
 }
 
 .test { 
@@ -27,13 +31,13 @@ body {
 }
 
 .test1 {
-    color: #333;
     background: #eee;
+    color: #333;
     overflow: hidden;
     padding: 1em;
 }
 
-@media and (min-width: 10000px) {
+@media all and (min-width: 10000px) {
     .test .test2 { 
         color: magenta;
     } 
@@ -45,9 +49,9 @@ body {
 }
 
 .test2 
-{ 
-    margin: 1em; /* Should be the first appearance */
+{
     background: #f8f8f8;
+    margin: 1em; /* Should be the first appearance */
 } 
 
 .test3 {
@@ -59,7 +63,7 @@ body {
     color: black;
 }
 
-@media and (min-width: 9900px) {
+@media all and (min-width: 9900px) {
     .test .test2 { 
         color: red;
     } 
