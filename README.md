@@ -7,14 +7,14 @@ This small extension was created to hande CSS files where identical selectors ar
 }
 
 .example {
-    padding: green;
+    padding: 1em;
 }
 ```
 Is converted into
 ```css
 .example {
     color: red;
-    padding: green;
+    padding: 1em;
 }
 
 ```
