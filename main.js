@@ -4,7 +4,7 @@
 define(function (require, exports, module) {
     "use strict";
 
-    require("thirdparty/specificity/specificity");
+    require("thirdparty_modules/specificity/specificity");
     var CommandManager = brackets.getModule("command/CommandManager"),
         EditorManager  = brackets.getModule("editor/EditorManager"),
         KeyBindingManager = brackets.getModule("command/KeyBindingManager"),
