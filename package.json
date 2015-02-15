@@ -1,0 +1,10 @@
+{
+    "name": "olofbjerke.brackets-unify-css-selectors",
+    "title": "Unify CSS Selectors",
+    "description": "Unify CSS selectors defined on multiple places into one declaration",
+    "homepage": "https://github.com/olofbjerke/yourproject",
+    "keywords":["css","selector","properties"]
+    "version": "0.1.0",
+    "author": "Olof Bjerke (http://objerke.se)",
+    "license": "MIT",
+}

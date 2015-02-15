@@ -1,0 +1,41 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+}
+
+.test { 
+    color: red;
+    font-size: 1em;
+    padding: 1em; 
+}
+
+.test1 { 
+    color: green;
+    color: magenta; /* Good to have a comment here */
+} 
+
+.test2 
+{ 
+    margin: 4em;
+} 
+
+.test3 { 
+    color: magenta;
+    padding: 1em;
+        width: 50em;
+} 
+
+.test1 a, .test1 a:hover {
+    color: black;
+}
+
+.test .test2 { 
+    color: magenta;
+} 
+
+body {
+    background: #f8f8f8;
+}
