@@ -1,0 +1,66 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    background: magenta; /* Will be overruled by later rule */
+    margin: 1em;
+}
+
+.test { 
+    color: red;
+    font-size: 1em;
+    padding: 1em; 
+}
+
+/* Body second time */
+body {
+    background: #f8f8f8;
+    margin: 0;
+}
+
+.test,
+.test1
+{ 
+    color: magenta; /* This should ever be active */
+}
+
+.test1 {
+    color: #333;
+    background: #eee;
+    overflow: hidden;
+    padding: 1em;
+}
+
+@media and (min-width: 10000px) {
+    .test .test2 { 
+        color: magenta;
+    } 
+
+    /* .test2 is defined in a media query before the base class. */
+    body, .test2 {
+        background: magenta;
+    }
+}
+
+.test2 
+{ 
+    margin: 1em; /* Should be the first appearance */
+    background: #f8f8f8;
+} 
+
+.test3 {
+    color: magenta;
+    padding: 1em;
+} 
+
+.test1 a, .test1 a:hover {
+    color: black;
+}
+
+@media and (min-width: 9900px) {
+    .test .test2 { 
+        color: red;
+    } 
+}
